@@ -1,46 +1,54 @@
+// pages/pages.go
 package pages
 
 import (
-	"fmt"
+	"html/template"
 	"log"
 	"net/http"
-	"text/template"
+	"path/filepath"
 )
 
-type TemplateConstruct struct {
-	layouts   map[string]*template.Template
-	fractions map[string]*template.Template
+// Store all templates in a simple map
+var templates = make(map[string]*template.Template)
+
+// InitTemplates loads all templates from the templates directory
+func InitTemplates() error {
+	// Parse all templates in one line using the glob pattern
+	files, err := filepath.Glob("templates/*.html")
+	if err != nil {
+		return err
+	}
+
+	// Parse each template file and store it by name
+	for _, file := range files {
+		name := filepath.Base(file[:len(file)-len(".html")])
+		templates[name], err = template.ParseFiles(file)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
-// TemplateData represents the data used to render any dynamic page.
-type TemplateData struct {
-	Data map[string]any
-}
-
-var tmplConstruct *TemplateConstruct
-
-func RenderLayoutTemplate(w http.ResponseWriter, r *http.Request, templateName string, data TemplateData) {
-	// Retrieve the template
-	tmpl, ok := tmplConstruct.layouts[templateName]
+// RenderTemplate renders a template with provided data
+func RenderTemplate(w http.ResponseWriter, templateName string, data any) {
+	tmpl, ok := templates[templateName]
 	if !ok {
-		log.Printf("Template not found: %s", templateName)
-		http.Error(w, fmt.Sprintf("The template %s does not exist.", templateName), http.StatusInternalServerError)
+		http.Error(w, "Template not found", http.StatusInternalServerError)
 		return
 	}
 
-	// Set content type and execute template
 	w.Header().Set("Content-Type", "text/html")
-	err := tmpl.ExecuteTemplate(w, "defaultLayout", data)
-	if err != nil {
+	if err := tmpl.Execute(w, data); err != nil {
 		log.Printf("Error executing template: %v", err)
 		http.Error(w, "Error rendering page", http.StatusInternalServerError)
 	}
 }
 
 func ServeHomepage(w http.ResponseWriter, r *http.Request) {
-	data := TemplateData{
-		Data: map[string]any{
-			"Title": "GoHTTP",
-		}}
-	RenderLayoutTemplate(w, r, "homepage", data)
+	data := map[string]any{
+		"Title": "GoHTTP Homepage",
+	}
+	RenderTemplate(w, "homepage", data)
 }
