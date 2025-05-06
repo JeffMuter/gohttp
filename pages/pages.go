@@ -53,3 +53,11 @@ func ServeHomepage(w http.ResponseWriter, r *http.Request) {
 	}
 	RenderTemplate(w, "homepage", data)
 }
+
+func ServeForm(w http.ResponseWriter, r *http.Request) {
+	data := map[string]any{
+		"Title": "GoHTTP Homepage",
+	}
+	RenderTemplate(w, "form", data)
+
+}

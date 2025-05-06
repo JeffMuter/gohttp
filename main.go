@@ -1,6 +1,7 @@
 package main
 
 import (
+	"gohttp/database"
 	"gohttp/pages"
 	"gohttp/router"
 	"log"
@@ -13,6 +14,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to initialize templates: %v", err)
 	}
+
+	// Initialize database
+	err = database.InitDB()
+	if err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
+	defer database.Close()
 
 	router := router.Router()
 
