@@ -9,6 +9,6 @@ func Router() *http.ServeMux {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", pages.ServeHomepage)
-	mux.HandleFunc("getForm", pages.ServeForm)
+	mux.HandleFunc("/getForm", pages.ServeForm)
 	return mux
 }
