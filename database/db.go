@@ -5,8 +5,10 @@ import (
 	"log"
 )
 
-var db *sql.DB
+// global access through the project
+var DB *sql.DB
 
+// very simple DB to execute and create the database
 const schemaString string = `
 	CREATE TABLE IF NOT EXISTS submissions (
 	id INTEGER NOT NULL PRIMARY KEY,
@@ -18,18 +20,33 @@ const schemaString string = `
   );`
 
 func InitDB() error {
-	var path string = "./gohttp.db"
-	db, err := sql.Open("sqlite3", path)
+	var path string = "./gohttp.DB"
+	var err error
+
+	// open the database
+	DB, err = sql.Open("sqlite3", path)
 	if err != nil {
-		log.Fatalf("database couldnt init: %v\n%v", err, db)
+		log.Fatalf("database couldnt init: %v\n%v", err, DB)
+		return err
 	}
 
-	_, err = db.Exec(schemaString)
+	// testing the connection
+	if err = DB.Ping(); err != nil {
+		log.Fatalf("database connection failed: %v", err)
+		return err
+	}
+
+	_, err = DB.Exec(schemaString)
 	if err != nil {
 		log.Fatalf("database schema execution err: %v\n", err)
+		return err
 	}
 
-	defer db.Close()
-
 	return nil
+}
+
+func CloseDB() {
+	if DB != nil {
+		DB.Close()
+	}
 }
