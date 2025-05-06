@@ -20,7 +20,7 @@ func InitTemplates() error {
 		return err
 	}
 
-	// Parse each template file and store it by name
+	// parse each template file and store it by name
 	for _, file := range files {
 		name := filepath.Base(file[:len(file)-len(".html")])
 		templates[name], err = template.ParseFiles(file)
