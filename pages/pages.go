@@ -14,6 +14,9 @@ var templates = make(map[string]*template.Template)
 // InitTemplates loads all templates from the templates directory
 func InitTemplates() error {
 
+	// how to get all templates
+	templates = make(map[string]*template.Template)
+	//
 	// parse all templates
 	files, err := filepath.Glob("templates/*.html")
 	if err != nil {
